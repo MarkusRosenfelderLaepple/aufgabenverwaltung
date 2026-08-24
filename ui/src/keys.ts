@@ -31,6 +31,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: "G H", description: "Heute", group: "Navigation" },
   { keys: "G B", description: "Board", group: "Navigation" },
   { keys: "G A", description: "Alle Aufgaben", group: "Navigation" },
+  { keys: "G W", description: "Auswertung", group: "Navigation" },
   { keys: "G P", description: "Projekte", group: "Navigation" },
   { keys: "G E", description: "Einstellungen", group: "Navigation" },
 

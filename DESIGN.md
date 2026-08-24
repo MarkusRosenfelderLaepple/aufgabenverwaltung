@@ -96,6 +96,24 @@ const brand = style.getPropertyValue("--brand").trim();
 Damit folgen Diagramme automatisch dem Theme. Wrapper-Muster (init, `ResizeObserver`, `dispose`) siehe README,
 Abschnitt „UI-Hinweise“.
 
+In diesem Projekt liegt das gebündelt in `ui/src/components/Chart.tsx`: `readChartTheme()` liest die Tokens,
+`baseAxisStyle()`/`baseTooltip()` geben Achse und Tooltip dieselbe Handschrift, und `useThemeKey()` gehört in
+die `useMemo`-Abhängigkeiten jeder Option — sonst behält ein Diagramm beim Theme-Wechsel die alten Farben,
+weil sich die Daten nicht geändert haben.
+
+Vier Regeln, die sich beim Bau der Auswertung als die tragenden erwiesen haben:
+
+1. **Eine Antwort je Seite, nicht je Diagramm.** `/api/analytics` liefert alles auf einmal. Sechs Endpunkte
+   wären sechs Ladezustände auf einer Seite, die als Ganzes gelesen wird — und sechs Gelegenheiten, dass zwei
+   Diagramme verschiedene Zeiträume zeigen.
+2. **Serie ohne Lücken.** Zeitreihen werden serverseitig auf jeden Tag aufgefüllt (`fill()` in
+   `src/repo/analytics.ts`). Ein `GROUP BY` allein zeigt eine Woche, die es nie gab.
+3. **Verdichten im Client.** Tag/Woche/Monat rechnet `bucketize()` aus denselben Tagesdaten. Der Umschalter
+   fühlt sich dadurch wie ein Regler an und nicht wie eine neue Seite.
+4. **Farbstufen mischen, nicht hinterlegen.** Die Heatmap blendet `--panel-3` nach `--green` (`mix()` in
+   `CalendarHeatmap.tsx`). Eine hinterlegte Palette leuchtet im Dark Mode heller als der Untergrund, aus dem
+   die Fläche wachsen soll.
+
 ## Nachträglich dazugekommene Klassen
 
 Diese Klassen stehen in `ui/src/styles.css` und gehören zu den Bausteinen aus Stufe 1 (siehe README-Kapitel zu
@@ -135,6 +153,9 @@ Neue Tabellenanforderungen (Sortieren, Spaltenwahl, Gruppieren) nicht in dieses 
 | `.project-row`, `.color-picker`, `.swatch`                       | Projektverwaltung                                                                  |
 | `.input.flat`                                                    | Feld ohne Rahmen für Zeilen, die schon in einer Liste stehen                       |
 | `.btn.on`                                                        | aktiver Umschaltknopf (In Arbeit, Filter offen)                                    |
+| `.kpi`, `.kpi-head`, `.kpi-value`, `.kpi-unit`                   | Kennzahlkachel der Auswertung — Zelle im Raster einer Karte, keine eigene Karte    |
+| `.heat-legend`                                                   | Farbstufen der Heatmap als DOM (dieselben Stufen wie im Diagramm)                  |
+| `.seg.auto`                                                      | Umschalter im Kartenkopf: Breite nach Inhalt statt gleich verteilt                 |
 | React-Bausteine                                                  | `CheckButton`, `PriorityFlag`, `ProjectChip`, `DueBadge`, `TaskMeta`, `Kbd`        |
 
 Vier Punkte, die dabei wichtiger sind als die Klassenliste:

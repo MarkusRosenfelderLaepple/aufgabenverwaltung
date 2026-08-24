@@ -8,6 +8,7 @@
  */
 import { keepPreviousData, QueryClient, queryOptions } from "@tanstack/react-query";
 import type {
+  Analytics,
   AppInfo,
   Project,
   Stats,
@@ -102,6 +103,19 @@ export const statsQuery = (date: string) =>
     queryFn: () => unwrap<Stats>(client.api.stats.$get({ query: { date } })),
   });
 
+/**
+ * Die große Auswertung. Zeitraum im Schlüssel: Ein Wechsel von 90 auf 365 Tage
+ * ist damit ein eigener Cache-Eintrag, und der Rückweg kostet keine Runde zum
+ * Server. `placeholderData` hält die alten Diagramme stehen, solange die neuen
+ * laden — sonst springt die Seitenhöhe bei jedem Klick auf den Zeitraum.
+ */
+export const analyticsQuery = (date: string, days: number) =>
+  queryOptions({
+    queryKey: ["analytics", date, days] as const,
+    queryFn: () => unwrap<Analytics>(client.api.analytics.$get({ query: { date, days: String(days) } })),
+    placeholderData: keepPreviousData,
+  });
+
 export const projectsQuery = queryOptions({
   queryKey: ["projects"] as const,
   queryFn: () => unwrap<Project[]>(client.api.projects.$get()),
@@ -137,7 +151,7 @@ export const logQuery = queryOptions({
  * Stelle.
  */
 export function invalidateTasks(): void {
-  for (const key of [["tasks"], ["today"], ["stats"], ["projects"]]) {
+  for (const key of [["tasks"], ["today"], ["stats"], ["analytics"], ["projects"]]) {
     void queryClient.invalidateQueries({ queryKey: key });
   }
 }

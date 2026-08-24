@@ -33,3 +33,14 @@ export function colorVar(color: ProjectColor): string {
 export function colorSoft(color: ProjectColor, percent = 14): string {
   return `color-mix(in srgb, var(--${color}) ${percent}%, transparent)`;
 }
+
+/**
+ * Der **aufgelöste** Wert eines Farbtokens. ECharts zeichnet auf ein Canvas und
+ * kann mit `var(--green)` nichts anfangen — deshalb hier einmal aus dem DOM
+ * lesen. Nur für Diagramme; im DOM bleibt `colorVar` die richtige Wahl, weil
+ * die Farbe dann ohne Neuzeichnen dem Theme folgt.
+ */
+export function colorValue(color: ProjectColor, fallback = "#64748b"): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(`--${color}`).trim();
+  return value || fallback;
+}

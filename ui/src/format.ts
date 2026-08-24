@@ -16,6 +16,7 @@ const dateOnly = new Intl.DateTimeFormat(LOCALE, { day: "2-digit", month: "short
 const dateLong = new Intl.DateTimeFormat(LOCALE, { dateStyle: "full" });
 const timeOnly = new Intl.DateTimeFormat(LOCALE, { hour: "2-digit", minute: "2-digit" });
 const weekday = new Intl.DateTimeFormat(LOCALE, { weekday: "short" });
+const monthOnly = new Intl.DateTimeFormat(LOCALE, { month: "short", year: "2-digit" });
 const relative = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
 
 /** `2026-08-24` aus einem `Date` — **nicht** `toISOString()`, das rechnet in UTC. */
@@ -55,6 +56,12 @@ export const fmt = {
   dateLong: (value: string) => {
     const date = new Date(`${value}T00:00:00`);
     return Number.isNaN(date.getTime()) ? value : dateLong.format(date);
+  },
+
+  /** ISO-Datum oder `2026-08` → `Aug. 26` — die Achse der Monatsansicht. */
+  month: (value: string) => {
+    const date = new Date(`${value.length === 7 ? `${value}-01` : value}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? value : monthOnly.format(date);
   },
 
   weekday: (value: string) => {

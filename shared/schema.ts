@@ -295,6 +295,101 @@ export const Stats = z.object({
 });
 export type Stats = z.infer<typeof Stats>;
 
+// ── Auswertung ──────────────────────────────────────────────────────────────
+
+/**
+ * Ein Tag der Zeitreihe. `open` ist der **Bestand am Tagesende**, nicht die
+ * Differenz des Tages: Erst damit beantwortet die Kurve die Frage, ob der Berg
+ * wächst oder schrumpft — zwei Balken allein tun das nicht.
+ */
+export const DayPoint = z.object({
+  date: IsoDate,
+  created: z.number().int().nonnegative(),
+  done: z.number().int().nonnegative(),
+  open: z.number().int().nonnegative(),
+});
+export type DayPoint = z.infer<typeof DayPoint>;
+
+/** Ein Tag der Kalender-Heatmap — ohne Bestand, die Fläche zeigt nur Aktivität. */
+export const CalendarDay = z.object({
+  date: IsoDate,
+  created: z.number().int().nonnegative(),
+  done: z.number().int().nonnegative(),
+});
+export type CalendarDay = z.infer<typeof CalendarDay>;
+
+/**
+ * Zeitraum der Auswertung. `days` als Fenster **zurück von `date`** und nicht
+ * als Von-Bis-Paar: Die Ansicht hat genau vier Schalter (30/90/365/alles), und
+ * ein Fenster ist ein Wert im Cache-Schlüssel statt zwei, die auseinanderlaufen.
+ */
+export const AnalyticsQuery = z.object({
+  date: IsoDate.default(() => new Date().toISOString().slice(0, 10)),
+  days: z.coerce.number().int().min(7).max(3650).default(90),
+});
+export type AnalyticsQuery = z.infer<typeof AnalyticsQuery>;
+
+export const LEAD_BUCKETS = [
+  { label: "am selben Tag", max: 1 },
+  { label: "1–2 Tage", max: 3 },
+  { label: "3–7 Tage", max: 8 },
+  { label: "1–2 Wochen", max: 15 },
+  { label: "2–4 Wochen", max: 31 },
+  { label: "1–3 Monate", max: 91 },
+  { label: "über 3 Monate", max: Infinity },
+] as const;
+
+export const Analytics = z.object({
+  from: IsoDate,
+  to: IsoDate,
+  days: z.number().int().positive(),
+  /** Erster Tag mit Daten überhaupt — die Ansicht schreibt daran „seit …“. */
+  firstEver: IsoDate.nullable(),
+  totals: z.object({
+    created: z.number().int().nonnegative(),
+    done: z.number().int().nonnegative(),
+    /** Bestand heute, nicht im Zeitraum. */
+    open: z.number().int().nonnegative(),
+    openStart: z.number().int().nonnegative(),
+    createdAll: z.number().int().nonnegative(),
+    doneAll: z.number().int().nonnegative(),
+    /** Tage mit mindestens einer erledigten Aufgabe. */
+    activeDays: z.number().int().nonnegative(),
+    bestDay: z.object({ date: IsoDate, done: z.number().int().nonnegative() }).nullable(),
+  }),
+  daily: z.array(DayPoint),
+  /** Kalenderjahr(e) für die Heatmap — immer die letzten 371 Tage. */
+  calendar: z.array(CalendarDay),
+  monthly: z.array(z.object({
+    month: z.string().regex(/^\d{4}-\d{2}$/),
+    created: z.number().int().nonnegative(),
+    done: z.number().int().nonnegative(),
+  })),
+  /** 0 = Montag, 6 = Sonntag — Reihenfolge wie im deutschen Kalender. */
+  weekday: z.array(z.object({
+    weekday: z.number().int().min(0).max(6),
+    created: z.number().int().nonnegative(),
+    done: z.number().int().nonnegative(),
+  })),
+  /** Zeit von Anlegen bis Erledigen, in Tagen. */
+  leadTime: z.object({
+    count: z.number().int().nonnegative(),
+    median: z.number().nonnegative(),
+    average: z.number().nonnegative(),
+    p90: z.number().nonnegative(),
+    buckets: z.array(z.object({ label: z.string(), count: z.number().int().nonnegative() })),
+  }),
+  projects: z.array(z.object({
+    projectId: z.number().int().positive().nullable(),
+    name: z.string(),
+    color: ProjectColor,
+    created: z.number().int().nonnegative(),
+    done: z.number().int().nonnegative(),
+    open: z.number().int().nonnegative(),
+  })),
+});
+export type Analytics = z.infer<typeof Analytics>;
+
 // ── Einstellungen ───────────────────────────────────────────────────────────
 
 /**

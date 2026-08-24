@@ -17,6 +17,7 @@ import { basename, dirname, join } from "@std/path";
 import { z, type ZodType } from "zod";
 
 import {
+  AnalyticsQuery,
   ExportRequest,
   IsoDate,
   NewProject,
@@ -37,6 +38,7 @@ import * as projects from "./repo/projects.ts";
 import * as subtasks from "./repo/subtasks.ts";
 import * as attachments from "./repo/attachments.ts";
 import * as agenda from "./repo/agenda.ts";
+import * as analytics from "./repo/analytics.ts";
 import { allSettings, readSetting, writeSettingChecked } from "./settings.ts";
 import { backupTo, databasePath } from "./db.ts";
 import { pickImageFiles, pickSaveFile, revealPath, uniquePath } from "./files.ts";
@@ -324,6 +326,16 @@ export function createApp(options: ApiOptions = {}) {
     // ── Tag und Auswertung ─────────────────────────────────────────────────
     .get("/api/today", check("query", DateQuery), (c) => c.json(agenda.today(c.req.valid("query").date)))
     .get("/api/stats", check("query", DateQuery), (c) => c.json(agenda.stats(c.req.valid("query").date)))
+    /**
+     * Die große Auswertung. Ein Endpunkt für alle Diagramme der Seite: Sechs
+     * einzelne Abfragen wären sechs Ladezustände auf einer Seite, die als
+     * Ganzes gelesen wird — und sechs Gelegenheiten, dass zwei Diagramme
+     * verschiedene Zeiträume zeigen.
+     */
+    .get("/api/analytics", check("query", AnalyticsQuery), (c) => {
+      const { date, days } = c.req.valid("query");
+      return c.json(analytics.analytics(date, days));
+    })
     // ── Einstellungen ──────────────────────────────────────────────────────
     .get("/api/settings", (c) => c.json(allSettings()))
     .put(

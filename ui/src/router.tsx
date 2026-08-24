@@ -3,7 +3,7 @@
  *
  * Warum nicht dateibasiert: Der dateibasierte Modus braucht das Vite-Plugin und
  * legt eine generierte `routeTree.gen.ts` ins Repository. Für eine Desktop-App
- * mit fünf Ansichten ist das mehr Bauschritt als Nutzen.
+ * mit sechs Ansichten ist das mehr Bauschritt als Nutzen.
  *
  * Warum `createHashHistory`: Die App wird vom eigenen Server ausgeliefert,
  * normale History würde also funktionieren. Mit Hash kann aber kein Serverpfad
@@ -16,6 +16,7 @@ import { RootLayout } from "./App.tsx";
 import { TodayRoute } from "./routes/today.tsx";
 import { BoardRoute } from "./routes/board.tsx";
 import { TasksRoute } from "./routes/tasks.tsx";
+import { AnalyticsRoute } from "./routes/analytics.tsx";
 import { ProjectsRoute } from "./routes/projects.tsx";
 import { SettingsRoute } from "./routes/settings.tsx";
 
@@ -54,6 +55,13 @@ const tasksRoute = createRoute({
   component: TasksRoute,
 });
 
+/** Die Auswertung filtert nichts — sie braucht das Suchparameter-Schema nicht. */
+const analyticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/auswertung",
+  component: AnalyticsRoute,
+});
+
 const projectsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/projekte",
@@ -70,6 +78,7 @@ const routeTree = rootRoute.addChildren([
   todayRoute,
   boardRoute,
   tasksRoute,
+  analyticsRoute,
   projectsRoute,
   settingsRoute,
 ]);

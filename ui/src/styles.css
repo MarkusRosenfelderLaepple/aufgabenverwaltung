@@ -638,6 +638,12 @@ h2 {
   font-size: 12px;
 }
 
+/* Im Kartenkopf steht der Umschalter neben Text und darf nicht mitschrumpfen —
+   gleich breite Felder ergeben dort „30 T…“ statt „30 Tage“. */
+.seg.auto button {
+  flex: 0 0 auto;
+}
+
 .seg button:last-child {
   border-right: none;
 }
@@ -1760,6 +1766,13 @@ a.nav-item:visited {
 }
 
 @media (max-width: 760px) {
+  /* Im schmalen Fenster hat der Umschalter im Kartenkopf keine eigene Zeile
+     mehr übrig: Dann doch gleich breite Felder mit Auslassung, statt über den
+     Kartenrand hinauszuschieben. */
+  .seg.auto button {
+    flex: 1 1 0;
+  }
+
   .quick-add .row.nowrap {
     flex-wrap: wrap;
   }
@@ -1777,4 +1790,57 @@ a.nav-item:visited {
   .lightbox {
     padding: 52px 12px 12px;
   }
+}
+
+/* ------------------------------------------------------------- auswertung */
+
+/* Kennzahlkachel: keine eigene Karte, sondern eine Zelle im Raster einer Karte
+   — sechs verschachtelte Karten wären sechs Rahmen auf 90px Höhe. */
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.kpi-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-head i {
+  display: inline-flex;
+}
+
+.kpi-value {
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.kpi-unit {
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 5px;
+  letter-spacing: 0;
+}
+
+/* Legende der Heatmap — dieselben Stufen wie im Diagramm, nur als DOM. */
+.heat-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.heat-legend i {
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--border);
 }

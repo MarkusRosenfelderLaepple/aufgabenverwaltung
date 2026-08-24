@@ -203,6 +203,32 @@ Deno.test("/api/today und /api/stats prüfen das Datum", async () => {
   assertEquals((await app.request("/api/stats")).status, 200);
 });
 
+Deno.test("/api/analytics klemmt den Zeitraum und liefert die volle Reihe", async () => {
+  // Zu klein, zu groß, kein Zahl — alles drei fällt im Schema aus, nicht erst
+  // in der Abfrage.
+  assertEquals((await app.request("/api/analytics?days=3")).status, 400);
+  assertEquals((await app.request("/api/analytics?days=99999")).status, 400);
+  assertEquals((await app.request("/api/analytics?days=viele")).status, 400);
+
+  const response = await app.request("/api/analytics?date=2026-08-24&days=30");
+  assertEquals(response.status, 200);
+  const body = await json<{
+    from: string;
+    to: string;
+    daily: unknown[];
+    calendar: unknown[];
+    weekday: unknown[];
+    leadTime: { buckets: unknown[] };
+  }>(response);
+  assertEquals(body.from, "2026-07-26");
+  assertEquals(body.to, "2026-08-24");
+  // Die Reihe ist immer vollständig — auch an Tagen ohne Bewegung.
+  assertEquals(body.daily.length, 30);
+  assertEquals(body.calendar.length, 371);
+  assertEquals(body.weekday.length, 7);
+  assertEquals(body.leadTime.buckets.length, 7);
+});
+
 Deno.test("Einstellungen: unbekannter Schlüssel und ungültiger Wert werden abgelehnt", async () => {
   assertEquals((await send("/api/settings/quatsch", "PUT", { value: 1 })).status, 400);
   assertEquals((await send("/api/settings/dailyGoal", "PUT", { value: 999 })).status, 400);

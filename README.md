@@ -47,6 +47,7 @@ Drei Entscheidungen, die man kennen sollte, weil sie die Bedienung prägen:
 | **Heute** (`G H`)         | In Arbeit · Überfällig · heute fällig · nächste sieben Tage · heute erledigt, plus Tagesziel, Serie und Verlauf |
 | **Board** (`G B`)         | vier Spalten, Ziehen zum Verschieben, Erledigtes wird nach n Tagen ausgeblendet                                 |
 | **Alle Aufgaben** (`G A`) | Suche über Titel, Notizen **und** Unterpunkte, Filter, Sortierung, Blättern, CSV-Export                         |
+| **Auswertung** (`G W`)    | Kennzahlen, Jahres-Heatmap, Zugang/Abgang/Bestand, Wochentage, Durchlaufzeit, Projekte                          |
 | **Projekte** (`G P`)      | anlegen, umbenennen, Farbe, Reihenfolge, Archiv                                                                 |
 | **Einstellungen** (`G E`) | Theme, Tagesziel, Aufräumgrenze, Sicherung, Protokoll                                                           |
 
@@ -64,7 +65,7 @@ J K ↓ ↑    Cursor bewegen    ↵   öffnen
 Leer       erledigt / offen  D   in Arbeit / zurück
 T M R      Termin heute / morgen / entfernen
 0 1 2 3    Priorität         ⌫   löschen
-G + H B A P E   Ansicht wechseln       Esc  Ebene schließen
+G + H B A W P E Ansicht wechseln       Esc  Ebene schließen
 ```
 
 Der **Cursor** (`J`/`K`) ist bewusst kein DOM-Fokus, sondern eine Klasse: Er läuft in der Reihenfolge, in der
@@ -122,7 +123,8 @@ src/repo/subtasks.ts    Unterpunkte (eine Ebene, sortierbar)
 src/repo/attachments.ts Bilder: Datei schreiben, MIME prüfen, verwaiste aufräumen
 src/files.ts            Pfade und native Dialoge (Speichern, Bilder auswählen)
 src/repo/projects.ts    Projekte samt Zähler offener Aufgaben
-src/repo/agenda.ts      Tagesansicht (5 Listen in einer Antwort) und Auswertung
+src/repo/agenda.ts      Tagesansicht (5 Listen in einer Antwort) und Tageszahlen
+src/repo/analytics.ts   Auswertung: Zeitreihe, Heatmap, Durchlaufzeit, Projekte
 src/api.ts              Hono-Router + `export type AppType` für den Client
 src/export.ts           CSV (Semikolon, BOM) — streamend
 ui/src/query.ts         eine Query-Option je Ressource, ein invalidateTasks()
@@ -131,8 +133,9 @@ ui/src/keys.ts          Tastaturschicht + SHORTCUTS (Quelle der Hilfeseite)
 ui/src/quickparse.ts    Kurzschreibweise der Schnellerfassung
 ui/src/colors.ts        Projektfarbe (Tokenname) → CSS-Variable
 ui/src/components/      TaskRow, TaskCard, TaskList, TaskDetail, QuickAdd,
-                        CommandPalette, Lightbox, HistoryChart, atoms …
-ui/src/routes/          today, board, tasks, projects, settings
+                        CommandPalette, Lightbox, HistoryChart, atoms,
+                        CalendarHeatmap, FlowChart, AnalyticsCharts …
+ui/src/routes/          today, board, tasks, analytics, projects, settings
 ```
 
 Die Regeln, die dabei wirklich tragen:
@@ -166,7 +169,7 @@ Die Regeln, die dabei wirklich tragen:
 | Datumsbibliothek für Formate | `Intl` (+ date-fns nur für „vor 2 Monaten“) | `Intl.RelativeTimeFormat` formatiert eine _vorgegebene_ Einheit, sucht sie aber nicht aus        |
 
 Geblieben sind: TanStack (Query, Router, Store, Form-frei, Pacer), Radix für Dialog und Menü (**Verhalten**,
-kein Aussehen), Lucide für Icons, ECharts für das eine Balkendiagramm.
+kein Aussehen), Lucide für Icons, ECharts für die Diagramme (Tagesverlauf und Auswertung).
 
 ## Tests
 

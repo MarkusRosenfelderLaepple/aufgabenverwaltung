@@ -100,7 +100,8 @@ const MENU: MenuItem[] = [
         { item: { label: "Heute", id: "view-today", accelerator: "CmdOrCtrl+1", enabled: true } },
         { item: { label: "Board", id: "view-board", accelerator: "CmdOrCtrl+2", enabled: true } },
         { item: { label: "Alle Aufgaben", id: "view-tasks", accelerator: "CmdOrCtrl+3", enabled: true } },
-        { item: { label: "Projekte", id: "view-projects", accelerator: "CmdOrCtrl+4", enabled: true } },
+        { item: { label: "Auswertung", id: "view-analytics", accelerator: "CmdOrCtrl+4", enabled: true } },
+        { item: { label: "Projekte", id: "view-projects", accelerator: "CmdOrCtrl+5", enabled: true } },
         "separator",
         { item: { label: "Neu laden", id: "reload", accelerator: "CmdOrCtrl+R", enabled: true } },
         {

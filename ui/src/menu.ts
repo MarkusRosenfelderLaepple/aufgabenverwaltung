@@ -23,6 +23,7 @@ export type MenuAction =
   | "view-today"
   | "view-board"
   | "view-tasks"
+  | "view-analytics"
   | "view-projects";
 
 type Handler = (action: MenuAction) => void;

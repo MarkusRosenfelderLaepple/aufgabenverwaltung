@@ -15,6 +15,7 @@ const tasks = await import("../src/repo/tasks.ts");
 const projects = await import("../src/repo/projects.ts");
 const subtasks = await import("../src/repo/subtasks.ts");
 const agenda = await import("../src/repo/agenda.ts");
+const analytics = await import("../src/repo/analytics.ts");
 const { readSetting, writeSetting } = await import("../src/settings.ts");
 const { DEFAULT_TASK_QUERY } = await import("../shared/schema.ts");
 
@@ -272,4 +273,54 @@ Deno.test("Einstellungen fallen bei kaputtem Wert auf die Vorgabe zurück", () =
 
   getDb().prepare("UPDATE settings SET value = ? WHERE key = ?").run('"kein Zahl"', "dailyGoal");
   assertEquals(readSetting("dailyGoal"), 5);
+});
+
+Deno.test("Auswertung: Zeitreihe, Bestand und Durchlaufzeit", () => {
+  clear();
+  const stamp = (day: string, time = "09:00:00") => `${day}T${time}.000Z`;
+  const set = (id: number, createdAt: string, doneAt: string | null) =>
+    getDb().prepare("UPDATE tasks SET createdAt = ?, updatedAt = ?, doneAt = ?, status = ? WHERE id = ?")
+      .run(createdAt, createdAt, doneAt, doneAt === null ? "todo" : "done", id);
+
+  // Zwei Aufgaben vor dem Zeitraum: eine erledigt, eine offen — die offene ist
+  // der Startbestand, den die Kurve mitschleppen muss.
+  const alt1 = tasks.create(newTask("Alt fertig"));
+  set(alt1.id, stamp("2026-01-05"), stamp("2026-01-06"));
+  const alt2 = tasks.create(newTask("Alt offen"));
+  set(alt2.id, stamp("2026-01-05"), null);
+
+  // Im Zeitraum: am 10. angelegt, am 13. fertig (Durchlaufzeit 3 Tage).
+  const neu = tasks.create(newTask("Neu"));
+  set(neu.id, stamp("2026-02-10"), stamp("2026-02-13"));
+
+  const result = analytics.analytics("2026-02-14", 14);
+  assertEquals(result.from, "2026-02-01");
+  assertEquals(result.daily.length, 14);
+  assertEquals(result.totals.openStart, 1);
+  assertEquals(result.totals.created, 1);
+  assertEquals(result.totals.done, 1);
+  assertEquals(result.totals.open, 1);
+  assertEquals(result.totals.createdAll, 3);
+
+  const day = (date: string) => result.daily.find((point) => point.date === date);
+  assertEquals(day("2026-02-09")?.open, 1); // nur der Altbestand
+  assertEquals(day("2026-02-10")?.created, 1);
+  assertEquals(day("2026-02-10")?.open, 2); // Zugang, noch kein Abgang
+  assertEquals(day("2026-02-13")?.done, 1);
+  assertEquals(day("2026-02-13")?.open, 1); // wieder auf Altbestand
+  assertEquals(result.totals.bestDay?.date, "2026-02-13");
+
+  // Durchlaufzeit: genau ein Wert, 3 Tage — Median wie Mittel.
+  assertEquals(result.leadTime.count, 1);
+  assertEquals(result.leadTime.median, 3);
+  assertEquals(result.leadTime.buckets.find((bucket) => bucket.label === "3–7 Tage")?.count, 1);
+
+  // Der 13. Februar 2026 ist ein Freitag: Montag = 0, Freitag = 4.
+  assertEquals(result.weekday[4].done, 1);
+  assertEquals(result.monthly.length, 1);
+  assertEquals(result.monthly[0], { month: "2026-02", created: 1, done: 1 });
+
+  // Die Heatmap hängt nicht am gewählten Zeitraum, sondern ist immer ein Jahr.
+  assertEquals(result.calendar.length, 371);
+  assertEquals(result.calendar.at(-1)?.date, "2026-02-14");
 });

@@ -17,6 +17,7 @@ import { useDebouncedValue } from "@tanstack/react-pacer";
 import {
   ArrowRight,
   CalendarDays,
+  ChartColumnIncreasing,
   FolderKanban,
   KanbanSquare,
   ListChecks,
@@ -32,7 +33,13 @@ import { fmt, isoDay } from "../format.ts";
 import { ui } from "../store/ui.ts";
 import { DueBadge, Kbd, PriorityFlag, ProjectChip } from "./atoms.tsx";
 
-export type PaletteTarget = "/" | "/board" | "/aufgaben" | "/projekte" | "/einstellungen";
+export type PaletteTarget =
+  | "/"
+  | "/board"
+  | "/aufgaben"
+  | "/auswertung"
+  | "/projekte"
+  | "/einstellungen";
 
 interface Command {
   id: string;
@@ -92,6 +99,13 @@ export function CommandPalette({ onNavigate }: { onNavigate: (to: PaletteTarget)
         hint: "G A",
         icon: <ListChecks size={15} />,
         run: () => onNavigate("/aufgaben"),
+      },
+      {
+        id: "nav-analytics",
+        label: "Auswertung",
+        hint: "G W",
+        icon: <ChartColumnIncreasing size={15} />,
+        run: () => onNavigate("/auswertung"),
       },
       {
         id: "nav-projects",

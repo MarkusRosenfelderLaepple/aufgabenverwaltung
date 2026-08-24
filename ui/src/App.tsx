@@ -12,6 +12,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useStore } from "@tanstack/react-store";
 import {
   CalendarDays,
+  ChartColumnIncreasing,
   CheckCheck,
   FolderKanban,
   Inbox,
@@ -47,6 +48,7 @@ const TITLE: Record<string, { title: string; sub: string }> = {
   "/": { title: "Heute", sub: "Woran arbeite ich, was ist fällig, was ist geschafft" },
   "/board": { title: "Board", sub: "Backlog · Geplant · In Arbeit · Erledigt" },
   "/aufgaben": { title: "Alle Aufgaben", sub: "Suchen, filtern, sortieren, exportieren" },
+  "/auswertung": { title: "Auswertung", sub: "Erstellt, erledigt, Bestand, Durchlaufzeit" },
   "/projekte": { title: "Projekte", sub: "Farben, Reihenfolge, Archiv" },
   "/einstellungen": { title: "Einstellungen", sub: "Darstellung, Daten, Protokoll" },
 };
@@ -56,6 +58,7 @@ const VIEWS: { to: PaletteTarget; label: string; icon: typeof CalendarDays; chor
   { to: "/", label: "Heute", icon: CalendarDays, chord: "h" },
   { to: "/board", label: "Board", icon: KanbanSquare, chord: "b" },
   { to: "/aufgaben", label: "Alle Aufgaben", icon: ListChecks, chord: "a" },
+  { to: "/auswertung", label: "Auswertung", icon: ChartColumnIncreasing, chord: "w" },
   { to: "/projekte", label: "Projekte", icon: FolderKanban, chord: "p" },
   { to: "/einstellungen", label: "Einstellungen", icon: SettingsIcon, chord: "e" },
 ];
@@ -108,6 +111,7 @@ export function RootLayout() {
       if (action === "view-today") goto("/");
       if (action === "view-board") goto("/board");
       if (action === "view-tasks") goto("/aufgaben");
+      if (action === "view-analytics") goto("/auswertung");
       if (action === "view-projects") goto("/projekte");
       if (action === "settings" || action === "log") goto("/einstellungen");
       if (action === "palette") ui.openPalette();
@@ -145,7 +149,7 @@ export function RootLayout() {
         focusSearch();
         return true;
       }
-      // ⌘1…⌘4 im Browser-Entwicklungslauf; im Fenster erledigt das das Menü.
+      // ⌘1…⌘5 im Browser-Entwicklungslauf; im Fenster erledigt das das Menü.
       const index = Number(event.key) - 1;
       if (index >= 0 && index < VIEWS.length) {
         goto(VIEWS[index].to);
@@ -239,11 +243,11 @@ export function RootLayout() {
         </div>
 
         <div className="nav-label">Ansichten</div>
-        {VIEWS.slice(0, 4).map((view) => (
+        {VIEWS.slice(0, 5).map((view) => (
           <Link
             key={view.to}
             to={view.to}
-            search={view.to === "/projekte" ? undefined : DEFAULT_TASK_QUERY}
+            search={view.to === "/auswertung" ? undefined : DEFAULT_TASK_QUERY}
             className="nav-item"
             activeOptions={view.to === "/" ? { exact: true } : undefined}
             activeProps={{ className: "active" }}
