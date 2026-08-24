@@ -1,0 +1,49 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    App-Icon: Klemmbrett mit Haken.
+
+    Regeln für ein Icon, das auf 16 px herunterskaliert wird (siehe README des
+    Stacks): große Flächen, dicke Striche, kein Text, keine Filter. Deckende
+    Farben und ein Gradient sind unproblematisch, feDropShadow und externe
+    Fonts rendern je nach Werkzeug unterschiedlich.
+
+    Farben: Brand #0052a3 und Akzent #f46610 der Werkzeugkiste.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a6bc9" />
+      <stop offset="1" stop-color="#00376d" />
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle: rx entspricht 20 % der Kantenlänge, außen 6 % Luft. macOS
+       beschneidet nichts und rundet nichts nach. -->
+  <rect x="60" y="60" width="904" height="904" rx="196" ry="196" fill="url(#bg)" />
+
+  <!-- Klemmbrettfläche -->
+  <rect x="248" y="232" width="528" height="600" rx="24" ry="24" fill="#ffffff" opacity="0.96" />
+  <!-- Klemme -->
+  <rect x="424" y="176" width="176" height="104" rx="20" ry="20" fill="#dbe6f2" />
+  <rect x="452" y="150" width="120" height="72" rx="24" ry="24" fill="#8fa8c4" />
+
+  <!-- Zwei abgehakte Zeilen -->
+  <g stroke="#0052a3" stroke-width="34" stroke-linecap="round" fill="none">
+    <path d="M330 396 l40 40 l74 -84" />
+    <path d="M330 556 l40 40 l74 -84" />
+  </g>
+  <g fill="#c3d2e2">
+    <rect x="480" y="392" width="212" height="34" rx="17" />
+    <rect x="480" y="552" width="164" height="34" rx="17" />
+  </g>
+
+  <!-- Die offene Zeile in Akzentfarbe: der Haken, der als Nächstes dran ist. -->
+  <path
+    d="M322 706 l52 52 l104 -112"
+    stroke="#f46610"
+    stroke-width="44"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <rect x="512" y="712" width="180" height="34" rx="17" fill="#f9c39c" />
+</svg>
