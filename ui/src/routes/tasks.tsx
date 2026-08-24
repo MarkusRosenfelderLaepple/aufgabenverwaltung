@@ -23,7 +23,7 @@ import {
   PAGE_SIZES,
   type TaskQuery,
   type TaskSort,
-  type TaskStatus,
+  type TaskStatusFilter,
 } from "../../../shared/schema.ts";
 import { projectsQuery, tasksQuery } from "../query.ts";
 import { useTaskMutations } from "../mutations.ts";
@@ -39,8 +39,11 @@ import { toast, ui, uiStore } from "../store/ui.ts";
 
 const route = getRouteApi("/aufgaben");
 
-const STATUS_OPTIONS: { value: TaskStatus | ""; label: string }[] = [
+const STATUS_OPTIONS: { value: TaskStatusFilter; label: string }[] = [
   { value: "", label: "Alle" },
+  // Der Alltagsfilter: „was ist noch zu tun“. Steht direkt neben „Alle“, weil
+  // er in der Praxis der Standardblick ist und nicht ein Sonderfall.
+  { value: "open", label: "Offen" },
   { value: "backlog", label: "Backlog" },
   { value: "todo", label: "Geplant" },
   { value: "doing", label: "In Arbeit" },
@@ -150,7 +153,7 @@ export function TasksRoute() {
           </div>
         }
       >
-        <div className="row nowrap filter-bar">
+        <div className="row filter-bar">
           <span className="search grow tasks-search">
             <Search size={14} />
             <input
@@ -216,7 +219,7 @@ export function TasksRoute() {
             Terminbereiche braucht man selten, sie stünden sonst dauerhaft im Weg. */
         }
         {showFilters && (
-          <div className="row nowrap filter-bar second">
+          <div className="row filter-bar second">
             <label className="field">
               <span>Termin von</span>
               <input

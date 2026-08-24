@@ -51,6 +51,8 @@ Deno.test("Unbekannte Aufgabe ergibt 404 mit Code", async () => {
 Deno.test("Suchparameter werden gegen das Schema geprüft", async () => {
   assertEquals((await app.request("/api/tasks?status=quatsch")).status, 400);
   assertEquals((await app.request("/api/tasks?status=doing&sort=due&dir=asc")).status, 200);
+  // `open` ist kein Zustand einer Aufgabe, aber ein erlaubter Filterwert.
+  assertEquals((await app.request("/api/tasks?status=open")).status, 200);
   // Unbekannte Sortierspalte und unsinnige Seitengröße kommen nie bis ins SQL.
   assertEquals((await app.request("/api/tasks?sort=drop_table")).status, 400);
   assertEquals((await app.request("/api/tasks?pageSize=99999")).status, 400);

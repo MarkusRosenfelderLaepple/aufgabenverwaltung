@@ -58,7 +58,12 @@ function where(query: TaskQuery): { sql: string; args: (string | number)[] } {
   const parts: string[] = [];
   const args: (string | number)[] = [];
 
-  if (query.status !== "") {
+  // `"open"` ist der Sammelfilter „alles außer erledigt“ und deshalb ein
+  // eigener Zweig: Er fragt nicht nach einem Zustand, sondern nach dessen
+  // Gegenteil.
+  if (query.status === "open") {
+    parts.push("t.status <> 'done'");
+  } else if (query.status !== "") {
     parts.push("t.status = ?");
     args.push(query.status);
   }

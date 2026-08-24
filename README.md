@@ -42,14 +42,14 @@ Drei Entscheidungen, die man kennen sollte, weil sie die Bedienung prägen:
 
 ## Ansichten
 
-| Ansicht                   | Wofür                                                                                                           |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Heute** (`G H`)         | In Arbeit · Überfällig · heute fällig · nächste sieben Tage · heute erledigt, plus Tagesziel, Serie und Verlauf |
-| **Board** (`G B`)         | vier Spalten, Ziehen zum Verschieben, Erledigtes wird nach n Tagen ausgeblendet                                 |
-| **Alle Aufgaben** (`G A`) | Suche über Titel, Notizen **und** Unterpunkte, Filter, Sortierung, Blättern, CSV-Export                         |
-| **Auswertung** (`G W`)    | Kennzahlen, Jahres-Heatmap, Zugang/Abgang/Bestand, Wochentage, Durchlaufzeit, Projekte                          |
-| **Projekte** (`G P`)      | anlegen, umbenennen, Farbe, Reihenfolge, Archiv                                                                 |
-| **Einstellungen** (`G E`) | Theme, Tagesziel, Aufräumgrenze, Sicherung, Protokoll                                                           |
+| Ansicht                   | Wofür                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Heute** (`G H`)         | In Arbeit · Überfällig · heute fällig · nächste sieben Tage · heute erledigt, plus Tagesziel, Serie und Verlauf                |
+| **Board** (`G B`)         | vier Spalten, Ziehen zum Verschieben, Erledigtes wird nach n Tagen ausgeblendet                                                |
+| **Alle Aufgaben** (`G A`) | Suche über Titel, Notizen **und** Unterpunkte, Filter (u. a. „Offen“ = alles außer erledigt), Sortierung, Blättern, CSV-Export |
+| **Auswertung** (`G W`)    | Kennzahlen, Jahres-Heatmap, Zugang/Abgang/Bestand, Wochentage, Durchlaufzeit, Projekte                                         |
+| **Projekte** (`G P`)      | anlegen, umbenennen, Farbe, Reihenfolge, Archiv                                                                                |
+| **Einstellungen** (`G E`) | Theme, Tagesziel, Aufräumgrenze, Sicherung, Protokoll                                                                          |
 
 Dazu drei Ebenen, die überall gelten: die **Detailansicht** (Klick oder `↵`), die **Befehlspalette** (`⌘K`)
 und die **Tastenkürzel-Übersicht** (`⌘/` oder `?`).

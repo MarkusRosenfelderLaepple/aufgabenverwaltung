@@ -976,6 +976,11 @@ a.nav-item:visited {
 
 .filter-bar {
   display: flex;
+  /* Umbrechen statt Quetschen, und zwar auf **jeder** Breite: Suche, sechs
+     Zustände, zwei Auswahlfelder und der Knopf brauchen zusammen rund 900px.
+     Ein Umbruchpunkt nach Fensterbreite ginge daneben, weil die Seitenleiste
+     davon abgeht — hier bricht die Zeile genau dann, wenn sie nicht mehr passt. */
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   padding: 5px 8px;
@@ -1781,10 +1786,6 @@ a.nav-item:visited {
   .quick-add .select {
     width: auto;
     flex: 1 1 120px;
-  }
-
-  .filter-bar {
-    flex-wrap: wrap;
   }
 
   .lightbox {

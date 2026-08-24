@@ -112,6 +112,23 @@ Deno.test("Filter, Suche und Projektzuordnung wirken in SQL", () => {
   assertEquals(tasks.all({ ...query, search: "%" }).length, 0);
 });
 
+Deno.test("Der Filter „offen“ ist alles außer erledigt", () => {
+  clear();
+  const backlog = tasks.create(newTask("Irgendwann", { status: "backlog" as const }));
+  const geplant = tasks.create(newTask("Diese Woche"));
+  const arbeit = tasks.create(newTask("Läuft", { status: "doing" as const }));
+  const fertig = tasks.create(newTask("Abgehakt"));
+  tasks.toggleDone(fertig.id);
+
+  const open = tasks.all({ ...query, status: "open" }).map((task) => task.id).sort();
+  assertEquals(open, [backlog.id, geplant.id, arbeit.id].sort());
+  // Der Sammelfilter darf die einzelnen Zustände nicht verdrängen.
+  assertEquals(tasks.all({ ...query, status: "done" }).map((task) => task.id), [fertig.id]);
+  assertEquals(tasks.all({ ...query, status: "" }).length, 4);
+  // Die Fußzeile zählt dasselbe wie die Liste zeigt.
+  assertEquals(tasks.page({ ...query, status: "open" }).total, 3);
+});
+
 Deno.test("Aufgaben ohne Termin stehen bei Sortierung nach Termin am Ende", () => {
   clear();
   const ohne = tasks.create(newTask("Irgendwann"));

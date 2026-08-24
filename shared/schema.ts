@@ -217,6 +217,18 @@ const boolFilter = z.union([z.boolean(), z.literal("true"), z.literal("false"), 
   .default(false)
   .transform((value) => value === true || value === "true");
 
+/**
+ * Der Zustandsfilter der Liste: die vier echten Zustände, dazu zwei
+ * Sammelwerte.
+ *
+ * `"open"` ist bewusst **kein** eigener Zustand einer Aufgabe, sondern nur ein
+ * Filter: „alles, was noch Arbeit ist“. Als abgeleiteter Filter bleibt er
+ * automatisch richtig, wenn später ein fünfter Zustand dazukommt — als
+ * gespeicherter Zustand wäre er ein zweiter Ort für dieselbe Wahrheit.
+ */
+export const TaskStatusFilter = z.union([z.literal(""), z.literal("open"), TaskStatus]).default("");
+export type TaskStatusFilter = z.infer<typeof TaskStatusFilter>;
+
 export const PAGE_SIZES = [25, 50, 100, 250] as const;
 
 /**
@@ -226,8 +238,8 @@ export const PAGE_SIZES = [25, 50, 100, 250] as const;
  * (`src/repo/tasks.ts`).
  */
 export const TaskQuery = z.object({
-  /** `""` = alle Zustände; sonst ein einzelner Zustand. */
-  status: optionalFilter(TaskStatus),
+  /** `""` = alle Zustände, `"open"` = alles außer erledigt, sonst genau einer. */
+  status: TaskStatusFilter,
   /** Volltext über Titel, Notizen und Unterpunkte — über alle Seiten hinweg. */
   search: z.string().default(""),
   /** `""` = alle Projekte, `0` = ohne Projekt (Eingang). */
