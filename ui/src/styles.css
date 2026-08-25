@@ -547,6 +547,18 @@ h2 {
   background: var(--violet);
 }
 
+/* Der Fortschritt der Unterpunkte in einer Aufgabenzeile. Feste Breite, damit
+   die Balken untereinander vergleichbar bleiben — ein Balken, der sich nach dem
+   Titel richtet, würde Anteile suggerieren, die es nicht gibt. */
+.subtask-progress {
+  gap: 5px;
+}
+
+.subtask-progress .progress {
+  width: 28px;
+  flex: none;
+}
+
 /* ------------------------------------------------------------------ modal */
 
 .overlay {

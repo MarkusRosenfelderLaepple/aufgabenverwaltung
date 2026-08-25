@@ -332,14 +332,33 @@ export function DueBadge({ due, today, done }: { due: string | null; today: stri
   );
 }
 
-/** „3/5“ plus Büroklammer — beides nur, wenn es etwas zu zeigen gibt. */
+/**
+ * „3/5“ plus Büroklammer — beides nur, wenn es etwas zu zeigen gibt.
+ *
+ * Vor der Zahl steht ein kurzer Balken — derselbe wie im Aufgabendetail. Die
+ * Zahl sagt, wie viel noch aussteht, der Balken sagt es auf einen Blick, ohne
+ * dass das Auge zwei Ziffern ins Verhältnis setzen muss. Grün wird er erst,
+ * wenn nichts mehr offen ist — beim Überfliegen einer langen Liste ist genau
+ * das die Information, die zählt.
+ */
 export function TaskMeta({ task }: { task: Task }) {
   if (task.subtaskTotal === 0 && task.attachmentCount === 0) return null;
   return (
     <span className="row nowrap tiny muted" style={{ gap: 8 }}>
       {task.subtaskTotal > 0 && (
-        <span className="num" title="Unterpunkte">
-          {task.subtaskDone}/{task.subtaskTotal}
+        <span
+          className="row nowrap subtask-progress"
+          title={`Unterpunkte: ${task.subtaskDone} von ${task.subtaskTotal} erledigt`}
+        >
+          <ProgressBar
+            value={task.subtaskDone}
+            total={task.subtaskTotal}
+            tone={task.subtaskDone === task.subtaskTotal ? "green" : "brand"}
+            thin
+          />
+          <span className="num">
+            {task.subtaskDone}/{task.subtaskTotal}
+          </span>
         </span>
       )}
       {task.attachmentCount > 0 && (
