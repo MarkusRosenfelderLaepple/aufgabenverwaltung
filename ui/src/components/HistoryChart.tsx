@@ -10,7 +10,16 @@
  */
 import { useMemo } from "react";
 import type { EChartsOption } from "echarts";
-import { baseAxisStyle, baseTooltip, Chart, readChartTheme, useThemeKey } from "./Chart.tsx";
+import {
+  barEmphasis,
+  barFill,
+  baseAxisStyle,
+  baseTooltip,
+  Chart,
+  readChartTheme,
+  shadowPointer,
+  useThemeKey,
+} from "./Chart.tsx";
 import { fmt } from "../format.ts";
 
 export function HistoryChart({ history }: { history: { date: string; done: number }[] }) {
@@ -26,7 +35,7 @@ export function HistoryChart({ history }: { history: { date: string; done: numbe
       tooltip: {
         ...baseTooltip(theme),
         trigger: "axis",
-        axisPointer: { type: "shadow" },
+        axisPointer: shadowPointer(theme),
         // ECharts typisiert `params` nicht brauchbar; gebraucht wird ohnehin nur
         // der Index, der Rest kommt aus den eigenen Daten.
         formatter: (params: unknown) => {
@@ -61,8 +70,9 @@ export function HistoryChart({ history }: { history: { date: string; done: numbe
           value: entry.done,
           // Der heutige Tag in Akzentfarbe: Er ist der einzige, der sich noch
           // ändern kann, und genau deshalb schaut man hin.
-          itemStyle: { color: entry.date === last ? theme.accent : theme.green },
+          itemStyle: barFill(entry.date === last ? theme.accent : theme.green),
         })),
+        emphasis: barEmphasis(theme.green),
         barMaxWidth: 14,
       }],
     };

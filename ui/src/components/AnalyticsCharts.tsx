@@ -14,7 +14,18 @@
 import { useMemo } from "react";
 import type { EChartsOption } from "echarts";
 import type { Analytics } from "../../../shared/schema.ts";
-import { baseAxisStyle, baseTooltip, Chart, readChartTheme, useThemeKey } from "./Chart.tsx";
+import {
+  barEmphasis,
+  barFill,
+  baseAxisStyle,
+  baseLegend,
+  baseTooltip,
+  Chart,
+  readChartTheme,
+  shadowPointer,
+  useThemeKey,
+  withAlpha,
+} from "./Chart.tsx";
 import { colorValue } from "../colors.ts";
 
 const WEEKDAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
@@ -28,14 +39,8 @@ export function WeekdayChart({ data }: { data: Analytics["weekday"] }) {
     const axis = baseAxisStyle(theme);
     return {
       grid: { left: 4, right: 12, top: 26, bottom: 0, containLabel: true },
-      legend: {
-        top: 0,
-        right: 0,
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: { color: theme.muted, fontSize: 11 },
-      },
-      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: { type: "shadow" } },
+      legend: { ...baseLegend(theme), top: 0, right: 0 },
+      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: shadowPointer(theme) },
       xAxis: {
         type: "category",
         data: WEEKDAYS.map((day) => day.slice(0, 2)),
@@ -55,14 +60,16 @@ export function WeekdayChart({ data }: { data: Analytics["weekday"] }) {
           name: "Erstellt",
           type: "bar",
           data: data.map((entry) => entry.created),
-          itemStyle: { color: theme.brand },
+          itemStyle: barFill(theme.brand),
+          emphasis: barEmphasis(theme.brand),
           barMaxWidth: 22,
         },
         {
           name: "Erledigt",
           type: "bar",
           data: data.map((entry) => entry.done),
-          itemStyle: { color: theme.green },
+          itemStyle: barFill(theme.green),
+          emphasis: barEmphasis(theme.green),
           barMaxWidth: 22,
         },
       ],
@@ -92,7 +99,7 @@ export function LeadTimeChart({ leadTime }: { leadTime: Analytics["leadTime"] })
 
     return {
       grid: { left: 4, right: 24, top: 8, bottom: 0, containLabel: true },
-      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: { type: "shadow" } },
+      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: shadowPointer(theme) },
       xAxis: { type: "value", minInterval: 1, ...axis },
       yAxis: {
         type: "category",
@@ -106,10 +113,9 @@ export function LeadTimeChart({ leadTime }: { leadTime: Analytics["leadTime"] })
           value: bucket.count,
           // Je länger die Aufgabe lag, desto wärmer der Balken — die Farbe
           // trägt hier dieselbe Information wie die Achse, nur schneller.
-          itemStyle: {
-            color: bucket.count === max && max > 1 ? theme.accent : theme.violet,
-          },
+          itemStyle: barFill(bucket.count === max && max > 1 ? theme.accent : theme.violet, "right"),
         })),
+        emphasis: barEmphasis(theme.violet),
         barMaxWidth: 16,
         label: {
           show: true,
@@ -147,14 +153,8 @@ export function ProjectChart({ projects }: { projects: Analytics["projects"] }) 
 
     return {
       grid: { left: 4, right: 12, top: 26, bottom: 0, containLabel: true },
-      legend: {
-        top: 0,
-        right: 0,
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: { color: theme.muted, fontSize: 11 },
-      },
-      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: { type: "shadow" } },
+      legend: { ...baseLegend(theme), top: 0, right: 0 },
+      tooltip: { ...baseTooltip(theme), trigger: "axis", axisPointer: shadowPointer(theme) },
       xAxis: { type: "value", minInterval: 1, ...axis },
       yAxis: {
         type: "category",
@@ -169,7 +169,10 @@ export function ProjectChart({ projects }: { projects: Analytics["projects"] }) 
           type: "bar",
           stack: "total",
           data: rows.map((entry) => entry.done),
-          itemStyle: { color: theme.green },
+          // Im Stapel rundet nur das **letzte** Segment außen; ein runder Kopf
+          // mitten im Balken reißt eine Lücke zum nächsten Segment.
+          itemStyle: { ...barFill(theme.green, "right"), borderRadius: [4, 0, 0, 4] },
+          emphasis: barEmphasis(theme.green),
           barMaxWidth: 18,
         },
         {
@@ -177,7 +180,8 @@ export function ProjectChart({ projects }: { projects: Analytics["projects"] }) 
           type: "bar",
           stack: "total",
           data: rows.map((entry) => entry.open),
-          itemStyle: { color: theme.amber },
+          itemStyle: barFill(theme.amber, "right"),
+          emphasis: barEmphasis(theme.amber),
           barMaxWidth: 18,
         },
       ],
@@ -201,16 +205,24 @@ export function OpenShareChart({ projects }: { projects: Analytics["projects"] }
         type: "pie",
         // Ring statt Torte: Die Mitte trägt keine Information, und der Ring
         // lässt die Segmente auch bei kleinen Anteilen unterscheiden.
-        radius: ["52%", "78%"],
+        radius: ["54%", "80%"],
         center: ["50%", "52%"],
         data: rows.map((entry) => ({
           name: entry.name,
           value: entry.open,
           itemStyle: { color: colorValue(entry.color) },
         })),
-        itemStyle: { borderColor: theme.panel, borderWidth: 2 },
+        // Runde Segmentecken und ein echter Spalt zwischen den Stücken: Der
+        // Ring wird damit zur Reihe von Kacheln statt zum geteilten Kuchen.
+        itemStyle: { borderColor: theme.panel, borderWidth: 2, borderRadius: 6 },
+        padAngle: 1.5,
+        emphasis: {
+          scale: true,
+          scaleSize: 6,
+          itemStyle: { shadowBlur: 16, shadowColor: withAlpha(theme.text, 0.28) },
+        },
         label: { color: theme.muted, fontSize: 11, formatter: "{b}\n{c}" },
-        labelLine: { lineStyle: { color: theme.border } },
+        labelLine: { lineStyle: { color: theme.border }, smooth: true },
       }],
     };
   }, [projects, themeKey]);

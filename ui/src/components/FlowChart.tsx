@@ -13,7 +13,19 @@
 import { useMemo } from "react";
 import type { EChartsOption } from "echarts";
 import type { DayPoint } from "../../../shared/schema.ts";
-import { baseAxisStyle, baseTooltip, Chart, readChartTheme, useThemeKey } from "./Chart.tsx";
+import {
+  areaFill,
+  barEmphasis,
+  barFill,
+  baseAxisStyle,
+  baseLegend,
+  baseTooltip,
+  Chart,
+  readChartTheme,
+  shadowPointer,
+  useThemeKey,
+  withAlpha,
+} from "./Chart.tsx";
 import { fmt } from "../format.ts";
 
 export type Grain = "day" | "week" | "month";
@@ -77,19 +89,17 @@ export function FlowChart({ daily, grain, height = 300 }: {
     return {
       grid: { left: 8, right: 8, top: 28, bottom: 4, containLabel: true },
       legend: {
+        ...baseLegend(theme),
         // Mittig, nicht rechts: Rechts oben steht der Name der zweiten Achse
         // („Bestand“), und beides an derselben Stelle überlagert sich.
         top: 0,
         left: "center",
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: { color: theme.muted, fontSize: 11 },
         data: ["Erstellt", "Erledigt", "Offener Bestand"],
       },
       tooltip: {
         ...baseTooltip(theme),
         trigger: "axis",
-        axisPointer: { type: "shadow" },
+        axisPointer: shadowPointer(theme),
         formatter: (params: unknown) => {
           const index = (params as { dataIndex?: number }[])[0]?.dataIndex ?? 0;
           const bucket = buckets[index];
@@ -131,14 +141,16 @@ export function FlowChart({ daily, grain, height = 300 }: {
           name: "Erstellt",
           type: "bar",
           data: buckets.map((bucket) => bucket.created),
-          itemStyle: { color: theme.brand },
+          itemStyle: barFill(theme.brand),
+          emphasis: barEmphasis(theme.brand),
           barMaxWidth: 18,
         },
         {
           name: "Erledigt",
           type: "bar",
           data: buckets.map((bucket) => bucket.done),
-          itemStyle: { color: theme.green },
+          itemStyle: barFill(theme.green),
+          emphasis: barEmphasis(theme.green),
           barMaxWidth: 18,
         },
         {
@@ -148,11 +160,22 @@ export function FlowChart({ daily, grain, height = 300 }: {
           data: buckets.map((bucket) => bucket.open),
           smooth: true,
           showSymbol: false,
-          lineStyle: { color: theme.accent, width: 2 },
-          itemStyle: { color: theme.accent },
+          symbol: "circle",
+          symbolSize: 7,
+          // Der Schein unter der Linie hebt sie über die Balken, ohne sie
+          // dicker zu machen — die Linie bleibt fein, liest sich aber zuerst.
+          lineStyle: {
+            color: theme.accent,
+            width: 2.5,
+            cap: "round",
+            shadowColor: withAlpha(theme.accent, 0.45),
+            shadowBlur: 12,
+            shadowOffsetY: 4,
+          },
+          itemStyle: { color: theme.accent, borderColor: theme.panel, borderWidth: 2 },
           // Eine dezente Fläche: Sie ordnet die Linie als „Menge“ ein, ohne mit
           // den Balken um Aufmerksamkeit zu streiten.
-          areaStyle: { color: theme.accent, opacity: 0.08 },
+          areaStyle: areaFill(theme.accent),
         },
       ],
     };

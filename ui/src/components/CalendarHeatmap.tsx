@@ -13,7 +13,7 @@
 import { useMemo } from "react";
 import type { EChartsOption } from "echarts";
 import type { CalendarDay } from "../../../shared/schema.ts";
-import { baseTooltip, Chart, readChartTheme, useThemeKey } from "./Chart.tsx";
+import { baseTooltip, Chart, readChartTheme, useThemeKey, withAlpha } from "./Chart.tsx";
 import { fmt } from "../format.ts";
 
 export type HeatMetric = "done" | "created";
@@ -109,8 +109,13 @@ export function CalendarHeatmap({ days, metric }: { days: CalendarDay[]; metric:
         range: [days[0]?.date ?? "", days.at(-1)?.date ?? ""],
         // Ein Rahmen in Panelfarbe erzeugt die Lücke zwischen den Kästchen,
         // ohne dass ECharts dafür einen Abstand kennt.
-        itemStyle: { color: theme.panel3, borderColor: theme.panel, borderWidth: 2 },
-        splitLine: { show: true, lineStyle: { color: theme.border, width: 1, type: "solid" } },
+        // `borderRadius` rundet die leeren Kästchen; die gefüllten bekommen
+        // denselben Wert unten an der Serie — sonst runden nur die Tage ohne
+        // Daten und das Gitter wirkt zerrissen. 4px entspricht `.heat-legend i`.
+        itemStyle: { color: theme.panel3, borderColor: theme.panel, borderWidth: 2, borderRadius: 4 },
+        // Die Monatsgrenze ist eine Orientierung, kein Tabellenrand: gepunktet
+        // und in der Textfarbe mit 10 % statt als durchgezogener Strich.
+        splitLine: { show: true, lineStyle: { color: withAlpha(theme.text, 0.1), width: 1, type: "dotted" } },
         yearLabel: { show: false },
         // Montag zuerst — deutscher Kalender, und die Wochenenden liegen dann
         // als Paar unten statt getrennt oben und unten.
@@ -120,7 +125,16 @@ export function CalendarHeatmap({ days, metric }: { days: CalendarDay[]; metric:
       series: [{
         type: "heatmap",
         coordinateSystem: "calendar",
+        itemStyle: { borderColor: theme.panel, borderWidth: 2, borderRadius: 4 },
         data: days.map((day) => [day.date, day[metric]]),
+        emphasis: {
+          itemStyle: {
+            borderColor: theme.brand,
+            borderWidth: 2,
+            shadowBlur: 8,
+            shadowColor: withAlpha(theme.brand, 0.5),
+          },
+        },
       }],
     };
     // `themeKey` ist der Auslöser, wenn nur das Theme gewechselt hat.
